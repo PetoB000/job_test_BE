@@ -1,0 +1,1 @@
+categories and category graphql query fix
