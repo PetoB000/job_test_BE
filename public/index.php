@@ -20,6 +20,24 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute(['POST', 'OPTIONS'], '/graphql', [App\Controllers\GraphQL::class, 'handle']);
+    $r->get('/health', function() {
+        try {
+            $pdo = new PDO(
+                "mysql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'],
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS']
+            );
+            return json_encode([
+                'status' => 'ok',
+                'database' => 'connected'
+            ]);
+        } catch (\PDOException $e) {
+            return json_encode([
+                'status' => 'error',
+                'database' => $e->getMessage()
+            ]);
+        }
+    });
 });
 
 $routeInfo = $dispatcher->dispatch(
