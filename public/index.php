@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -21,10 +19,7 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
 }
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
-    $r->get('/health', function() {
-        return json_encode(['status' => 'ok']);
-    });
-    $r->post('/graphql', [App\Controllers\GraphQL::class, 'handle']);
+    $r->addRoute(['POST', 'OPTIONS'], '/graphql', [App\Controllers\GraphQL::class, 'handle']);
 });
 
 $routeInfo = $dispatcher->dispatch(
