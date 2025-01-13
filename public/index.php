@@ -19,14 +19,19 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
 }
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
-    $r->get('/health', function() {
-        return json_encode([
-            'status' => 'ok',
-            'database' => checkDatabaseConnection()
-        ]);
-    });
+    // Health check route
+    $r->get('/health', 'healthCheck');
+    // GraphQL route
     $r->addRoute(['POST', 'OPTIONS'], '/graphql', [App\Controllers\GraphQL::class, 'handle']);
 });
+
+function healthCheck() {
+    header('Content-Type: application/json');
+    return json_encode([
+        'status' => 'ok',
+        'database' => checkDatabaseConnection()
+    ]);
+}
 
 // Add this helper function
 function checkDatabaseConnection() {
@@ -58,6 +63,11 @@ switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
-        echo $handler[0]::{$handler[1]}($vars);
+        
+        if (is_string($handler) && function_exists($handler)) {
+            echo $handler($vars);
+        } else if (is_array($handler)) {
+            echo $handler[0]::{$handler[1]}($vars);
+        }
         break;
 }
