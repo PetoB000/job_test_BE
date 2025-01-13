@@ -19,36 +19,26 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
 }
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
-    $r->addRoute(['POST', 'OPTIONS'], '/graphql', [App\Controllers\GraphQL::class, 'handle']);
     $r->get('/health', function() {
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
-        
-        try {
-            $dsn = "mysql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'];
-            $pdo = new PDO($dsn, $_ENV['DB_USER'], $_ENV['DB_PASS']);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            
-            return json_encode([
-                'status' => 'ok',
-                'database' => 'connected',
-                'dsn' => $dsn,
-                'env_vars' => [
-                    'host_exists' => isset($_ENV['DB_HOST']),
-                    'name_exists' => isset($_ENV['DB_NAME']),
-                    'user_exists' => isset($_ENV['DB_USER'])
-                ]
-            ]);
-        } catch (\Throwable $e) {
-            return json_encode([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
+        return json_encode([
+            'status' => 'ok',
+            'database' => checkDatabaseConnection()
+        ]);
     });
+    $r->addRoute(['POST', 'OPTIONS'], '/graphql', [App\Controllers\GraphQL::class, 'handle']);
 });
 
+// Add this helper function
+function checkDatabaseConnection() {
+    try {
+        $dsn = "mysql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'];
+        $pdo = new PDO($dsn, $_ENV['DB_USER'], $_ENV['DB_PASS']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return 'connected';
+    } catch (\Throwable $e) {
+        return $e->getMessage();
+    }
+}
 $routeInfo = $dispatcher->dispatch(
     $_SERVER['REQUEST_METHOD'],
     $_SERVER['REQUEST_URI']
