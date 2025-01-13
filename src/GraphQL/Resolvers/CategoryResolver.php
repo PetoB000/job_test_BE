@@ -18,8 +18,8 @@ class CategoryResolver
         return $this->categoryModel->getAll();
     }
 
-    public function resolveCategoryById($id)
+    public function resolveCategoryByName(string $name)
     {
-        return $this->categoryModel->getById($id);
+        return $this->categoryModel->getByName($name);
     }
 }

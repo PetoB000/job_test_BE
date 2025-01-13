@@ -77,11 +77,11 @@ class Types
                 'category' => [
                     'type' => self::categoryType(),
                     'args' => [
-                        'id' => Type::nonNull(Type::id())
+                        'name' => Type::nonNull(Type::string())
                     ],
                     'resolve' => function ($root, $args) {
                         $resolver = new CategoryResolver();
-                        return $resolver->resolveCategoryById($args['id']);
+                        return $resolver->resolveCategoryByName($args['name']);
                     }
                 ]
             ]

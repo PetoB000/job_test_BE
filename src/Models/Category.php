@@ -32,4 +32,11 @@ class Category extends AbstractModel
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
+
+    public function getByName(string $name): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM categories WHERE name = :name");
+        $stmt->execute(['name' => $name]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 }
