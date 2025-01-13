@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -18,6 +20,9 @@ $dotenv->load();
 $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS']);
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
+    $r->get('/health', function() {
+        return json_encode(['status' => 'ok']);
+    });
     $r->post('/graphql', [App\Controllers\GraphQL::class, 'handle']);
 });
 
