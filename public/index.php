@@ -3,7 +3,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 // CORS Headers
-header('Access-Control-Allow-Origin: https://petob000.github.io');
+header('Access-Control-Allow-Origin: https://velvety-pastelito-3b4748.netlify.app');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
