@@ -5,7 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 // CORS Headers
 $allowedOrigins = [
     'https://velvety-pastelito-3b4748.netlify.app',
-    'https://67a3704a75b6350008623ee2--osszetett-alkalmazas.netlify.app',
+    'https://osszetett-alkalmazas.netlify.app',
     'http://localhost:5173',
     'https://localhost:5173'
 ];
