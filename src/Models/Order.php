@@ -77,66 +77,55 @@ class Order extends AbstractCatalogItem
         }
     }
 
-    private function getOrderItemAttributes($orderItemId): array
+    public function getAll(): array
     {
-        $stmt = $this->db->prepare("
-            SELECT oia.name, ai.value, ai.display_value 
-            FROM order_item_attributes oia
-            JOIN attribute_items ai ON oia.attribute_id = ai.id
-            WHERE oia.order_item_id = :order_item_id
+        $stmt = $this->db->query("
+            SELECT id, customer_name, customer_email, status, created_at
+            FROM orders
+            ORDER BY created_at DESC
         ");
-        $stmt->execute(['order_item_id' => $orderItemId]);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Retrieves an order by ID including its items
-     * 
-     * @param string $id Order identifier
-     * @return array Order data with items
-     */
+    public function getOrderItems(string $orderId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, order_id, product_id, quantity, price
+            FROM order_items
+            WHERE order_id = :order_id
+        ");
+        $stmt->execute(['order_id' => $orderId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getOrderItemAttributes(string $orderItemId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, order_item_id, name, attribute_id
+            FROM order_item_attributes
+            WHERE order_item_id = :order_item_id
+        ");
+        $stmt->execute(['order_item_id' => $orderItemId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getById($id): array
     {
         $stmt = $this->db->prepare("SELECT * FROM orders WHERE id = :id");
         $stmt->execute(['id' => $id]);
-        $order = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $items = $this->getOrderItems($id);
-        foreach ($items as &$item) {
-            $item['selected_attributes'] = $this->getOrderItemAttributes($item['id']);
+        if ($order) {
+            $order['items'] = $this->getOrderItems($id);
+            foreach ($order['items'] as &$item) {
+                $item['selected_attributes'] = $this->getOrderItemAttributes($item['id']);
+            }
         }
-        $order['items'] = $items;
 
         return $order;
-    }
-    /**
-     * Gets all items for a specific order
-     * 
-     * @param string $orderId Order identifier
-     * @return array List of order items
-     */
-    private function getOrderItems($orderId): array
-    {
-        $stmt = $this->db->prepare("SELECT * FROM order_items WHERE order_id = :order_id");
-        $stmt->execute(['order_id' => $orderId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Retrieves all orders with their items
-     * 
-     * @return array List of all orders with items
-     */
-    public function getAll(): array
-    {
-        $stmt = $this->db->query("SELECT * FROM orders");
-        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($orders as &$order) {
-            $order['items'] = $this->getOrderItems($order['id']);
-        }
-
-        return $orders;
     }
 
     /**

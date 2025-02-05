@@ -3,17 +3,34 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 // CORS Headers
-header('Access-Control-Allow-Origin: https://velvety-pastelito-3b4748.netlify.app');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+$allowedOrigins = [
+    'https://velvety-pastelito-3b4748.netlify.app',
+    'https://67a3704a75b6350008623ee2--osszetett-alkalmazas.netlify.app',
+    'http://localhost:5173',
+    'https://localhost:5173'
+];
 
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');
+}
+
+// Access-Control headers for OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    }
+    
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    }
     exit(0);
 }
 
-
-// Only try to load .env file if it exists (local development)
+// Load .env file if it exists (local development)
 if (file_exists(dirname(__DIR__) . '/.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
     $dotenv->load();

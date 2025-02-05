@@ -12,6 +12,26 @@ class OrderResolver
     {
         $this->orderModel = new Order();
     }
+    public function resolveOrders(): array
+    {
+        return $this->orderModel->getAll();
+    }
+
+    public function resolveOrderItems(string $orderId): array
+    {
+        return $this->orderModel->getOrderItems($orderId);
+    }
+
+    public function resolveOrderItemAttributes(string $orderItemId): array
+    {
+        return $this->orderModel->getOrderItemAttributes($orderItemId);
+    }
+
+    public function resolveOrderById(string $orderId): array 
+    {
+        return $this->orderModel->getById($orderId);
+    }
+
 
     public function createOrder(array $args): array
     {
